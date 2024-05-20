@@ -1,28 +1,42 @@
-import database.models.book as Book
-from sqlalchemy.orm import joinedload
+from database.models.book import Book
+from sqlalchemy import select
 import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, 'database'))
 from config import get_db
 
-def get_books(db = get_db()):
-    return db.query(Book).options(joinedload(Book.genres)).all()
 
-def remove_book(id, db = get_db()):
-    db.query(Book).filter(Book.id == id).delete()
-    db.commit()
-    return 'Book removed'
+async def get_books():
+    db = next(get_db())
+    query = select(Book)
+    result = await db.execute(query)
+    books = [{"id": book.id, "title": book.title, "description": book.description} for book in result.scalars()]
+    return { "message": "Genres all", "data": books}
 
-def add_book(book, db = get_db()):
+
+async def remove_book(book_id):
+        db = next(get_db())
+        book = await db.get(Book, book_id)
+        if book:
+            await db.delete(book)
+            await db.commit()
+            return {'message': f'Book with ID {book_id} deleted'}
+        else:
+            return {'error': 'Book not found'}
+
+
+async def add_book(book_schema):
+    db = next(get_db())
+    book = Book(title=book_schema.title, description=book_schema.description)
     db.add(book)
-    db.commit()
-    return 'Book added'
+    await db.commit()
+    return {'message': 'Book added'}
 
-def get_book(id, db = get_db()):
-    return db.query(Book).filter(Book.id == id).options(joinedload(Book.genres)).first()
 
-def update_book(id, book, db = get_db()):
-    db.query(Book).filter(Book.id == id).update(book)
-    db.commit()
-    return 'Book updated'
+async def get_book(id):
+    db = next(get_db())
+    query = select(Book).where(Book.id.in_([id]))
+    result = await db.execute(query)
+    book = [{"id": book.id, "name": book.title, "description": book.description} for book in result.scalars()]
+    return { "message": "Book", "data": book}

@@ -4,31 +4,34 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, 'services'))
 import book_services
+sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, 'database'))
+from schemas.book_schema import Book_schema
+
 
 router = APIRouter()
 
 @router.get("/books")
-def books():
-    return book_services.get_books()
+async def books():
+    response = await book_services.get_books()
+    return response
 
 @router.delete("/books/{id}")
-def delete_book(id: int):
-    return book_services.remove_book(id)
+async def delete_book(id: int):
+    response = await book_services.remove_book(id)
+    return response
 
 @router.post("/books")
-def add_a_book(book):
-    return book_services.add_book(book)
+async def add_a_book(book: Book_schema):
+    response = await book_services.add_book(book)
+    return response
 
 @router.get("/books/{id}")
-def get_a_book(id: int):
-    return book_services.get_book(id)
-
-@router.put("/books/{id}")
-def update_a_book(id: int, book):
-    return book_services.update_book(id, book)
+async def get_a_book(id: int):
+    response = await book_services.get_book(id)
+    return response
 
 @router.get("/books/statistics")
-def books_statistics():
+async def books_statistics():
     books = book_services.get_books()
     genres = {}
     for book in books:
