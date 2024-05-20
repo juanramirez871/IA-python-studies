@@ -8,21 +8,21 @@ import genre_services
 router = APIRouter()
 
 @router.get("/genres")
-def message():
-    return genre_services.get_genres()
+async def message():
+    response = await genre_services.get_genres()
+    return response
 
 @router.delete("/genres/{id}")
-def delete_genre(id: int):
-    return genre_services.remove_genre(id)
+async def delete_genre(id: int):
+    response = await genre_services.remove_genre(id)
+    return response
 
 @router.post("/genres")
-def add_a_genre(genre):
-    return genre_services.add_genre(genre)
+async def add_a_genre(genre):
+    response = await genre_services.add_genre(genre)
+    return response
 
 @router.get("/genres/{id}")
-def get_a_genre(id: int):
-    return genre_services.get_genre(id)
-
-@router.put("/genres/{id}")
-def update_a_genre(id: int, genre):
-    return genre_services.update_genre(id, genre)
+async def get_a_genre(id: int):
+    response = await genre_services.get_genre(id)
+    return response

@@ -1,27 +1,41 @@
-import database.models.genre as Genre
+from database.models.genre import Genre
+from sqlalchemy import select
 import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, 'database'))
 from config import get_db
 
-def get_genres(db = get_db()):
-    return db.query(Genre).all()
 
-def remove_genre(id, db = get_db()):
-    db.query(Genre).filter(Genre.id == id).delete()
-    db.commit()
-    return 'Genre removed'
+async def get_genres():
+    db = next(get_db())
+    query = select(Genre)
+    result = await db.execute(query)
+    genres = [{"id": genre.id, "name": genre.name} for genre in result.scalars()]
+    return { "message": "Genres all", "data": genres}
 
-def add_genre(genre, db = get_db()):
+
+async def remove_genre(genre_id):
+        db = next(get_db())
+        genre = await db.get(Genre, genre_id)
+        if genre:
+            await db.delete(genre)
+            await db.commit()
+            return {'message': f'Genre with ID {genre_id} deleted'}
+        else:
+            return {'error': 'Genre not found'}
+
+async def add_genre(genre):
+    
+    db = next(get_db())
+    genre = Genre(name=genre)
     db.add(genre)
-    db.commit()
-    return 'Genre added'
+    await db.commit()
+    return {'message': 'Genre added'}
 
-def get_genre(id, db = get_db()):
-    return db.query(Genre).filter(Genre.id == id).first()
-
-def update_genre(id, genre, db = get_db()):
-    db.query(Genre).filter(Genre.id == id).update(genre)
-    db.commit()
-    return 'Genre updated'
+async def get_genre(id):
+    db = next(get_db())
+    query = select(Genre).where(Genre.id.in_([id]))
+    result = await db.execute(query)
+    genres = [{"id": genre.id, "name": genre.name} for genre in result.scalars()]
+    return { "message": "Genre", "data": genres}
