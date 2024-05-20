@@ -1,6 +1,10 @@
-from ..database.config import get_db
 import database.models.book as Book
 from sqlalchemy.orm import joinedload
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, 'database'))
+from config import get_db
 
 def get_books(db = get_db()):
     return db.query(Book).options(joinedload(Book.genres)).all()
