@@ -1,0 +1,6 @@
+venv
+app/__pycache__
+app/database/__pycache__
+app/database/models/__pycache__
+app/routers/__pycache__
+app/services/__pycache__

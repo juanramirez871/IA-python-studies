@@ -32,7 +32,7 @@ async def get_a_book(id: int):
 
 @router.get("/books/statistics")
 async def books_statistics():
-    books = book_services.get_books()
+    books = await book_services.get_books()
     genres = {}
     for book in books:
         for genre in book.genres:
