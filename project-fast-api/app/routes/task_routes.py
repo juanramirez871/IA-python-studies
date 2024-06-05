@@ -49,22 +49,7 @@ async def update_task(item_id: int, item: dict):
         if item:
             return dict(item)
         else:
-            raise HTTPException(status_code=404, detail="Item not found")
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    finally:
-        await disconnect_db(conn)
-        
-@router.delete("/tasks/{item_id}")
-async def delete_task(item_id: int):
-    conn = await connect_db()
-    try:
-        query = "DELETE FROM tasks WHERE id = $1 RETURNING *"
-        item = await conn.fetchrow(query, item_id)
-        if item:
-            return dict(item)
-        else:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=404, detail="task not found")
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     finally:
