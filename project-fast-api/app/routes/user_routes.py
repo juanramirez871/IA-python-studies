@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from fastapi import HTTPException
 from app.database import connect_db, disconnect_db
+from app.services import auth_services
 
 router = APIRouter()
 
@@ -32,9 +33,13 @@ async def read_users():
 async def create_user(user: dict):
     conn = await connect_db()
     try:
+        print(user)
         query = "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING *"
         user = await conn.fetchrow(query, user["name"], user["email"], user["password"], user["role"])
-        return dict(user)
+        jwt_token = auth_services.create_access_token(data={"sub": user['role']})
+        user = dict(user)
+        user["jwt_token"] = jwt_token
+        return user
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     finally:
