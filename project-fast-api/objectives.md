@@ -2,9 +2,9 @@
 
 ## Autenticación y Autorización
 
-* Registro de usuarios.
+* Registro de usuarios. --> ya
 
-* Inicio de sesión y cierre de sesión.
+* Inicio de sesión --> ya
 
 * Recuperación de contraseñas.
 
