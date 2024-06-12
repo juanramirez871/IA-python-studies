@@ -2,6 +2,8 @@ from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from jose import JWTError, jwt
 from fastapi.responses import JSONResponse
+import re
+
 
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
@@ -42,6 +44,25 @@ def init_middlewares(app: FastAPI):
                         "detail": "Authorization header missing"
                         },
                 )
+                
+        if 'payload' in locals() and payload is not None:
+            role = payload['sub']
+            
+            patterns = [
+                r"^/users/\d+$",
+                r"^/teams/\d+$",
+                r"^/tasks/\d+$",
+            ]
+            if any(re.match(pattern, request.url.path) for pattern in patterns):
+                if role != "admin":
+                    return JSONResponse(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        content={
+                            "status": 403,
+                            "detail": "You do not have permission to access this resource"
+                            },
+                    )
+        
         response = await call_next(request)
         return response
     

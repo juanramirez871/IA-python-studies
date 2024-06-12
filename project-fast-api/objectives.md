@@ -8,7 +8,7 @@
 
 * Recuperación de contraseñas.
 
-* Roles de usuario (Administrador, Miembro).
+* Roles de usuario (Administrador, Miembro). --> ya
 
 ## Gestión de Equipos
 
