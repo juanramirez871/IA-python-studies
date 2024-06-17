@@ -3,6 +3,9 @@ from fastapi import HTTPException
 from app.database import connect_db, disconnect_db
 from app.services import auth_services
 from fastapi.responses import JSONResponse
+from app.services import email_services
+import random
+
 
 router = APIRouter()
 
@@ -99,3 +102,66 @@ async def delete_user(user_id: int):
         raise HTTPException(status_code=400, detail=str(e))
     finally:
         await disconnect_db(conn)
+        
+@router.post("/users/forgot-password")
+async def forgot_password(user: dict):
+    conn = await connect_db()
+    try:
+        query = "SELECT * FROM users WHERE email = $1"
+        user_db = await conn.fetchrow(query, user["email"])
+        query = "SELECT * FROM code WHERE user_id = $1 ORDER BY id DESC LIMIT 1"
+        code_db = await conn.fetchrow(query, user_db["id"])
+        if not code_db:
+            raise HTTPException(status_code=404, detail="code not found")
+        if code_db["code"] == user["code"]:
+            new_password = user["password"]
+            password_hash = auth_services.get_password_hash(new_password)
+            query = "UPDATE users SET password = $1 WHERE email = $2 RETURNING *"
+            user_db = await conn.fetchrow(query, password_hash, user["email"])
+            jwt_token = auth_services.create_access_token(data={"sub": user_db['role']})
+            return JSONResponse(
+                status_code= 200,
+                content={
+                "status": 200,
+                "detail": "Password updated",
+                "new_password": new_password,
+                "jwt_token": jwt_token
+                },
+            )
+        else:
+            return JSONResponse(
+                status_code= 400,
+                content={
+                "status": 400,
+                "detail": "Invalid code"
+                },
+            )
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        await disconnect_db(conn)
+        
+@router.post("/users/send-email")
+async def send_email(user: dict):
+    try:
+        code_random = random.randint(10000, 99999)
+        conn = await connect_db()
+        query = "SELECT * FROM users WHERE email = $1"
+        user_db = await conn.fetchrow(query, user["email"])
+        if not user_db:
+            raise HTTPException(status_code=404, detail="user not found")
+        query = "INSERT INTO code (user_id, code) VALUES ($1, $2) RETURNING *"
+        await conn.fetchrow(query, user_db["id"], code_random)
+        await disconnect_db(conn)
+        
+        email_services.send_email(user["email"], "Cambiar Contraseña", "Tu código de verificación es: " + str(code_random))
+        return JSONResponse(
+            status_code= 200,
+            content={
+            "status": 200,
+            "detail": "Email sent"
+            },
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
