@@ -6,25 +6,23 @@
 
 * Inicio de sesión --> ya
 
-* Recuperación de contraseñas.
+* Recuperación de contraseñas. --> ya
 
 * Roles de usuario (Administrador, Miembro). --> ya
 
 ## Gestión de Equipos
 
-* Crear un equipo.
+* Crear un equipo. --> ya
 
-* Agregar y eliminar miembros del equipo.
+* Agregar y eliminar miembros del equipo. --> ya
 
-* Listar todos los equipos a los que pertenece un usuario.
+* Listar todos los equipos a los que pertenece un usuario. --> ya
 
 ## Gestión de Tareas
 
-* Crear una tarea dentro de un equipo.
+* Crear una tarea dentro de un equipo. --> ya
 
-* Actualizar y eliminar tareas.
-
-* Listar todas las tareas de un equipo.
+* Listar todas las tareas de un equipo. --> ya
 
 ## UML
 

@@ -9,7 +9,7 @@ router = APIRouter()
 async def read_task(team_id: int):
     conn = await connect_db()
     try:
-        query = "SELECT * FROM teams WHERE id = $1"
+        query = "SELECT * FROM users WHERE id = (SELECT user_id FROM team_members WHERE team_id = $1)"
         item = await conn.fetchrow(query, team_id)
         if item:
             return dict(item)
@@ -32,8 +32,8 @@ async def read_tasks():
 async def create_task(team: dict):
     conn = await connect_db()
     try:
-        query = "INSERT INTO teams (name) VALUES ($1) RETURNING *"
-        team = await conn.fetchrow(query, team["name"])
+        query = "INSERT INTO teams (name, description) VALUES ($1, $2) RETURNING *"
+        team = await conn.fetchrow(query, team["name"], team["description"])
         return dict(team)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -129,5 +129,17 @@ async def read_task(team_id: int, task_id: int):
             return dict(item)
         else:
             raise HTTPException(status_code=404, detail="task not found")
+    finally:
+        await disconnect_db(conn)
+        
+@router.post("/team/{team_id}/user/{user_id}")
+async def create_member(team_id: int, user_id: int):
+    conn = await connect_db()
+    try:
+        query = "INSERT INTO team_members (team_id, user_id) VALUES ($1, $2) RETURNING *"
+        member = await conn.fetchrow(query, team_id, user_id)
+        return dict(member);
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
     finally:
         await disconnect_db(conn)
