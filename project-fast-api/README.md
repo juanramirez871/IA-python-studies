@@ -80,3 +80,9 @@ Endpoindt = ```teams/1/tasks```
 
 * Ahora podes ver las tareas de un equipo
 Endpoindt = ```teams/1/tasks```
+
+* Tambien Podes actualizar el contenido de una tarea
+Endpoindt = ```teams/{team_id}/tasks/{task_id}```
+
+* Tambien Podes Eliminar una tarea
+Endpoindt = ```teams/{team_id}/tasks/{task_id}```
