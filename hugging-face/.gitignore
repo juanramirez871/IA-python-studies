@@ -1,0 +1,7 @@
+venv
+my-super-model/*
+logs/*
+results/*
+my-super-model/*
+results/*
+.env
