@@ -5,3 +5,4 @@ app/database/models/__pycache__
 app/routes/__pycache__
 app/services/__pycache__
 .env
+env
