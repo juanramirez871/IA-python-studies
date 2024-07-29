@@ -23,7 +23,8 @@ def insert_vector(index, vector, metadata):
                 'values': vector.tolist(),
                 'metadata': metadata
             }
-        ]
+        ],
+        namespace=metadata['from']
     )
     
     return upsert_response

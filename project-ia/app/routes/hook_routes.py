@@ -22,11 +22,12 @@ async def whatsapp_webhook(security_token, request: Request):
 
     if event_name == "message_create":
         data_message = event_message_services.message_create(event_data)
-        pinecone_services.create_index(data_message['message_from'], pc)
+        pinecone_services.create_index('whatsapp-messages', pc)
         vector_tokenized = text_processing_services.text_vectorizer(data_message['message_content'])
-        index = pc.Index(data_message['message_from'])
+        index = pc.Index('whatsapp-messages')
         metadata = {
             "to": data_message['message_to'],
+            "from": data_message['message_from'],
             "created_at": data_message['message_created_at']
         }
         upsert_response = pinecone_services.insert_vector(index, vector_tokenized, metadata)
