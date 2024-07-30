@@ -55,7 +55,7 @@ def get_all_vectors_by_number(index, number_phone):
         messages = df_sorted.to_dict(orient='records')
         return messages
     
-def get_last_vectors_by_number(index, number_phone, amount_vectors):
+def get_lastest_vectors_by_number(index, number_phone, amount_vectors):
     
         all_ids = [id_vector for id_vector in index.list(namespace=number_phone)][0]
         vectors = index.fetch(ids=all_ids, namespace=number_phone)['vectors']
@@ -66,7 +66,9 @@ def get_last_vectors_by_number(index, number_phone, amount_vectors):
                 "from": metadata['from'],
                 "to": metadata['to'],
                 "created_at": metadata['created_at'],
-                "message": metadata['message']
+                "message": metadata['message'],
+                "starts": metadata['starts'].split(' ')[0],
+                "score": metadata['score']
             })
         
         last_message = conversations[-amount_vectors:]
