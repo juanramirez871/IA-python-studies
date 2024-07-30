@@ -3,7 +3,7 @@ from app.services import event_message_services, text_processing_services, pinec
 from pinecone import Pinecone
 import os
 
-security_tokens = { 16542: os.environ['API_KEY_WHATSAPP'] }
+security_tokens = { 16728: os.environ['API_KEY_WHATSAPP'] }
 router = APIRouter()
 
 
@@ -22,15 +22,16 @@ async def whatsapp_webhook(security_token, request: Request):
 
     if event_name == "message_create":
         data_message = event_message_services.message_create(event_data)
-        pinecone_services.create_index('whatsapp-messages', pc)
-        vector_tokenized = text_processing_services.text_vectorizer(data_message['message_content'])
-        index = pc.Index('whatsapp-messages')
+        pinecone_services.create_index(os.getenv("INDEX_WHATSAPP_NAME"), pc)
+        vector_tokenized = text_processing_services.text_tokenizer(data_message['message_content'])
+        index = pc.Index(os.getenv("INDEX_WHATSAPP_NAME"))
         metadata = {
             "to": data_message['message_to'],
             "from": data_message['message_from'],
-            "created_at": data_message['message_created_at']
+            "created_at": data_message['message_created_at'],
+            "message": data_message['message_content']
         }
-        upsert_response = pinecone_services.insert_vector(index, vector_tokenized, metadata)
+        pinecone_services.insert_vector(index, vector_tokenized, metadata)
         
     print("Webhook received successfully ✅✅✅")
     return {"status": "success", "message": "Webhook received successfully"}

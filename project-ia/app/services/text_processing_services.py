@@ -1,10 +1,8 @@
-from transformers import AutoTokenizer, AutoModel
+from langchain_huggingface import HuggingFaceEmbeddings
+from sentence_transformers import SentenceTransformer
 
-def text_vectorizer(message_content):
-    tokenizer = AutoTokenizer.from_pretrained('sentence-transformers/all-MiniLM-L6-v2')
-    model = AutoModel.from_pretrained('sentence-transformers/all-MiniLM-L6-v2')
-    
-    inputs = tokenizer(message_content, return_tensors='pt', padding=True, truncation=True, max_length=128)
-    embeddings = model(**inputs).last_hidden_state.mean(dim=1).squeeze()
-    vector_message = embeddings.detach().numpy()
-    return vector_message
+def text_tokenizer(message_content):
+    HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
+    model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-mpnet-base-v2')
+    sentence_embeddings = model.encode(message_content)
+    return sentence_embeddings 
