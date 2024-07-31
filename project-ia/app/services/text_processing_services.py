@@ -8,6 +8,7 @@ def text_tokenizer(message_content):
     
     global model_embeddings
     if(model_embeddings == False):
+        print("Loading model 🤖")
         HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
         model_embeddings = SentenceTransformer('sentence-transformers/paraphrase-multilingual-mpnet-base-v2')
         

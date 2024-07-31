@@ -21,13 +21,20 @@ async def whatsapp_webhook(security_token, request: Request):
         print("Invalid request ❗❗❗")
         raise HTTPException(status_code=400, detail="Invalid request")
 
-    if event_name == "message_create":
+    if event_name == "message_create":            
+            
+        index_whatsapp_name = os.getenv("INDEX_WHATSAPP_NAME")
+        index_sentiment_name = os.getenv("INDEX_SENTIMENT_NAME")
         
         ## insert the message
         data_message = event_message_services.message_create(event_data)
-        pinecone_services.create_index(os.getenv("INDEX_WHATSAPP_NAME"), pc)
+        if data_message['message_content'] is None:
+            print("Invalid request ❗❗❗")
+            raise HTTPException(status_code=400, detail="Invalid request")
+        
+        pinecone_services.create_index(index_whatsapp_name, pc)
         vector_tokenized = text_processing_services.text_tokenizer(data_message['message_content'])
-        index_message = pc.Index(os.getenv("INDEX_WHATSAPP_NAME"))
+        index_message = pc.Index(index_whatsapp_name)
         metadata = {
             "to": data_message['message_to'],
             "from": data_message['message_from'],
@@ -38,9 +45,9 @@ async def whatsapp_webhook(security_token, request: Request):
         
         ## insert the sentiment analysis
         feeling = text_processing_services.text_transfom_sentiment(data_message['message_content'])
-        pinecone_services.create_index(os.getenv("INDEX_SENTIMENT_NAME"), pc)
+        pinecone_services.create_index(index_sentiment_name, pc)
         sentiment_tokenized = text_processing_services.text_tokenizer(feeling[0]['label'])
-        index_sentiment = pc.Index(os.getenv("INDEX_SENTIMENT_NAME"))
+        index_sentiment = pc.Index(index_sentiment_name)
         metadata['starts'] = feeling[0]['label']
         metadata['score'] = feeling[0]['score']
         pinecone_services.insert_vector(index_sentiment, sentiment_tokenized, metadata)
