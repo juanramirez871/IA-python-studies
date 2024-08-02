@@ -32,25 +32,20 @@ async def whatsapp_webhook(security_token, request: Request):
             print("Invalid request, only text allowed ❗❗❗")
             raise HTTPException(status_code=400, detail="Invalid request")
         
-        pinecone_services.create_index(index_whatsapp_name, pc)
+        pinecone_services.create_index(index_sentiment_name, pc)
         vector_tokenized = text_processing_services.text_tokenizer(data_message['message_content'])
-        index_message = pc.Index(index_whatsapp_name)
+        index_message = pc.Index(index_sentiment_name)
+        feeling = text_processing_services.text_transfom_sentiment(data_message['message_content'])
         metadata = {
             "to": data_message['message_to'],
             "from": data_message['message_from'],
             "created_at": data_message['message_created_at'],
-            "message": data_message['message_content']
+            "text": data_message['message_content'],
+            "starts": feeling[0]['label'],
+            "score": feeling[0]['score']
         }
         pinecone_services.insert_vector(index_message, vector_tokenized, metadata)
         
-        ## insert the sentiment analysis
-        feeling = text_processing_services.text_transfom_sentiment(data_message['message_content'])
-        pinecone_services.create_index(index_sentiment_name, pc)
-        sentiment_tokenized = text_processing_services.text_tokenizer(feeling[0]['label'])
-        index_sentiment = pc.Index(index_sentiment_name)
-        metadata['starts'] = feeling[0]['label']
-        metadata['score'] = feeling[0]['score']
-        pinecone_services.insert_vector(index_sentiment, sentiment_tokenized, metadata)
         
     print("Webhook received successfully 🧙‍♂️🐲")
     return {"status": "success", "message": "Webhook received successfully"}

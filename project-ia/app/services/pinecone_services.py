@@ -48,7 +48,7 @@ def get_all_vectors_by_number(index, number_phone):
                     "from": metadata['from'],
                     "to": metadata['to'],
                     "created_at": metadata['created_at'],
-                    "message": metadata['message']
+                    "message": metadata['text']
                 })
 
         df = pd.DataFrame(conversations)
@@ -68,7 +68,7 @@ def get_lastest_vectors_by_number(index, number_phone, amount_vectors):
                 "from": metadata['from'],
                 "to": metadata['to'],
                 "created_at": metadata['created_at'],
-                "message": metadata['message'],
+                "message": metadata['text'],
                 "starts": metadata['starts'].split(' ')[0],
                 "score": metadata['score']
             })
