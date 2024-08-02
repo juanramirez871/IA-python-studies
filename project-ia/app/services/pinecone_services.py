@@ -36,19 +36,21 @@ def get_all_vectors_by_number(index, number_phone):
         my_number = my_number = os.getenv("MY_NUMBER")
         ids_from = [id_vector for id_vector in index.list(namespace=number_phone)][0]
         ids_to = [id_vector for id_vector in index.list(namespace=my_number)][0]
-        all_ids = list(set(ids_from + ids_to))
-        
-        vectors = index.fetch(ids=all_ids, namespace=number_phone)['vectors']
+        vectors_from = index.fetch(ids=ids_from, namespace=number_phone)['vectors']
+        vectors_to = index.fetch(ids=ids_to, namespace=my_number)['vectors']
+        vectors = {**vectors_from, **vectors_to}
         conversations = []
-        for id_vector in all_ids:
-            metadata = vectors[id_vector]['metadata']
-            conversations.append({
-                "from": metadata['from'],
-                "to": metadata['to'],
-                "created_at": metadata['created_at'],
-                "message": metadata['message']
-            })
         
+        for id_vector, vector_data in vectors.items():
+            metadata = vector_data['metadata']
+            if (metadata['from'] == my_number and metadata['to'] == number_phone) or (metadata['from'] == number_phone and metadata['to'] == my_number):
+                conversations.append({
+                    "from": metadata['from'],
+                    "to": metadata['to'],
+                    "created_at": metadata['created_at'],
+                    "message": metadata['message']
+                })
+
         df = pd.DataFrame(conversations)
         df['created_at'] = pd.to_datetime(df['created_at'], format='%d/%m/%Y %H:%M:%S')
         df_sorted = df.sort_values(by='created_at')

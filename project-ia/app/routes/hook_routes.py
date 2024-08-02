@@ -3,7 +3,7 @@ from app.services import event_message_services, text_processing_services, pinec
 from pinecone import Pinecone
 import os
 
-security_tokens = { 16728: os.environ['API_KEY_WHATSAPP'] }
+security_tokens = { 17034: os.environ['API_KEY_WHATSAPP'] }
 router = APIRouter()
 
 
@@ -28,8 +28,8 @@ async def whatsapp_webhook(security_token, request: Request):
         
         ## insert the message
         data_message = event_message_services.message_create(event_data)
-        if data_message['message_content'] is None:
-            print("Invalid request ❗❗❗")
+        if data_message is None:
+            print("Invalid request, only text allowed ❗❗❗")
             raise HTTPException(status_code=400, detail="Invalid request")
         
         pinecone_services.create_index(index_whatsapp_name, pc)
