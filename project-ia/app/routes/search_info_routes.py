@@ -4,6 +4,7 @@ from langchain_pinecone import PineconeVectorStore
 from langchain_openai import ChatOpenAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain_huggingface import HuggingFaceEmbeddings
+from app.services import pinecone_services
 import os
 import random
 import requests
@@ -72,4 +73,18 @@ async def get_all_numbers(request: Request):
 
     return {
         "contacts": data
+    }
+    
+
+@router.get("/conversation/{number_phone}")
+async def get_conversation(number_phone, request: Request):
+    
+    pc = Pinecone()
+    index = pc.Index(os.getenv("INDEX_SENTIMENT_NAME"))
+    messages = pinecone_services.get_all_vectors_by_number(index, number_phone)
+    
+    return {
+        "messages": messages,
+        "number_phone": number_phone,
+        "status": "success 🧙‍♂️"
     }

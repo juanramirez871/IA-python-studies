@@ -47,15 +47,49 @@ const initShowConversations = async () => {
   }
 };
 
-const selectContact = (contact) => {
+const selectContact = async(contact) => {
     const $nameCurrentContact = document.getElementById("name-current-contact");
     const $avatarCurrentContact = document.getElementById("avatar-current-contact");
+
     $nameCurrentContact.innerText = contact["name"];
     $avatarCurrentContact.src = contact["image"];
     const $hiddenChat = document.getElementById("hidden-chat");
     $hiddenChat.style.display = "none";
     const $loadConversation = document.getElementById("load-conversation");
     $loadConversation.style.display = "flex";
+
+    const response = await fetch("/conversation/" + contact["number"]);
+    const data = await response.json();
+    console.log(data)
+    const messages = data.messages;
+    const $contentMessages = document.getElementById("content-messages");
+    for (let message of messages) {
+        const $message = document.createElement("li");
+        $message.className = 'clearfix';
+        let html = ""
+        if(message['from'] == contact['number'])
+        {
+            html = `
+                <div class="message-data text-right" style="margin-right: 10px;">
+                    <small class="message-data-time">${message['created_at']}</small>
+                </div>
+                <div class="message other-message float-right">
+                    ${message['message']}
+                </div>
+            `
+        }
+        else {
+            html = `
+                <div class="message-data" style="margin-right: 10px;">
+                    <small class="message-data-time">${message['created_at']}</small>
+                </div>
+                <div class="message my-message">${message['message']}</div>
+            `
+        }
+        $message.innerHTML = html;
+        $contentMessages.appendChild($message);
+    }
+    $loadConversation.style.display = "none";
 }
 
 // invokes 🧙‍♂️🐲
