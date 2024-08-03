@@ -19,6 +19,17 @@ body {
     top: 0;
     padding: 20px;
     z-index: 7;
+    overflow: hidden;
+    overflow-y: auto;
+    height: -webkit-fill-available;
+  }
+
+  .row{
+    width: 100% !important;
+  }
+
+  .container {
+    margin-top: 100px;
   }
 
   .chat-app .chat {
@@ -209,6 +220,35 @@ body {
     height: 0;
   }
 
+  .hidden-chat {
+    background-color: #e9ecef;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 999;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .load-conversation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: #fcfefc;
+    z-index: 999;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+  }
+
+  .chat {
+    position: relative;
+  }
+
   @media only screen and (max-width: 767px) {
     .chat-app .people-list {
       height: 465px;
@@ -253,4 +293,10 @@ body {
       height: calc(100vh - 350px);
       overflow-x: auto;
     }
+  }
+
+  .clearfix{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap !important;
   }
