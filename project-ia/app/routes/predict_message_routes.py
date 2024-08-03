@@ -21,7 +21,7 @@ async def predict_message(number_phone, prediccion, request: Request):
     
     data = index.query(
             vector=text_processing_services.text_tokenizer('').tolist(),
-            top_k=20,
+            top_k=30,
             include_metadata=True,
             namespace=number_phone
         )
@@ -38,8 +38,6 @@ async def predict_message(number_phone, prediccion, request: Request):
                 "message": metadata.get("text")
             })
             
-    print(f"Conversations: {conversations}")
-    print('-'*100)
     df = pd.DataFrame(conversations)
     df['created_at'] = pd.to_datetime(df['created_at'], format='%d/%m/%Y %H:%M:%S')
     df_sorted = df.sort_values(by='created_at')

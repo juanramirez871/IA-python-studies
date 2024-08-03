@@ -1,12 +1,12 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
-
+templates = Jinja2Templates(directory="app/public/views")
+    
 @router.get("/")
-def read_root():
-    return {
-            "title": "My first IA project 🧠",
-            "description": "i dont know what to do 🧐",
-            "author": "Juan 🧙‍♂️",
-            "server": f"Server is running done 🤖"
-            }
+async def root(request: Request):
+    return templates.TemplateResponse(
+        "home.html", {"request": request}
+    )
