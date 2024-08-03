@@ -14,28 +14,33 @@ body {
     min-height: 400px;
   }
   .chat-app .people-list {
-    width: 280px;
-    position: absolute;
     left: 0;
     top: 0;
     padding: 20px;
     z-index: 7;
     overflow: hidden;
     overflow-y: auto;
-    height: -webkit-fill-available;
+    max-height: 700px;
+    margin-bottom: 5px;
   }
 
   .row{
     width: 100% !important;
+    margin-right: 0px !important;
+    margin-left: 0px !important;
   }
 
   .container {
-    margin-top: 100px;
+    margin-top: 50px;
   }
 
   .chat-app .chat {
-    margin-left: 280px;
+    margin-left: 0px;
     border-left: 1px solid #eaeaea;
+  }
+
+  .chat-app {
+    flex-direction: row !important;
   }
 
   .people-list {
@@ -87,6 +92,7 @@ body {
   .chat .chat-header {
     padding: 15px 20px;
     border-bottom: 2px solid #f4f7f6;
+    background: #fff7f8;
   }
 
   .chat .chat-header img {
@@ -250,6 +256,7 @@ body {
   .chat {
     position: relative;
     min-height: 400px;
+    width: 100%;
   }
 
   .chat .chat-history {
@@ -257,54 +264,17 @@ body {
     position: relative;
   }
 
-  @media only screen and (max-width: 767px) {
-    .chat-app .people-list {
-      height: 465px;
-      width: 100%;
-      overflow-x: auto;
-      background: #fff;
-      left: -400px;
-      display: none;
-    }
-    .chat-app .people-list.open {
-      left: 0;
-    }
-    .chat-app .chat {
-      margin: 0;
-    }
-    .chat-app .chat .chat-header {
-      border-radius: 0.55rem 0.55rem 0 0;
-    }
-    .chat-app .chat-history {
-      height: 300px;
-      overflow-x: auto;
-    }
-  }
-
-  @media only screen and (min-width: 768px) and (max-width: 992px) {
-    .chat-app .chat-list {
-      height: 650px;
-      overflow-x: auto;
-    }
-    .chat-app .chat-history {
-      height: 600px;
-      overflow-x: auto;
-    }
-  }
-
-  @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) and (-webkit-min-device-pixel-ratio: 1) {
-    .chat-app .chat-list {
-      height: 480px;
-      overflow-x: auto;
-    }
-    .chat-app .chat-history {
-      height: calc(100vh - 350px);
-      overflow-x: auto;
-    }
-  }
-
   .clearfix{
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap !important;
+  }
+
+  @media (max-width: 1000px) {
+    .chat-app{
+        flex-wrap: wrap !important;
+    }
+    .chat-app .people-list {
+        width: 100%;
+    }
   }
