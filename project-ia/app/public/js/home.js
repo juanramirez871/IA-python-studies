@@ -47,6 +47,12 @@ const initShowConversations = async () => {
   }
 };
 
+const get_feelings = async (number) => {
+    const response = await fetch("/feelings/" + number);
+    const data = await response.json();
+    return data.average_starts;
+}
+
 const selectContact = async(contact) => {
     const $nameCurrentContact = document.getElementById("name-current-contact");
     const $avatarCurrentContact = document.getElementById("avatar-current-contact");
@@ -60,9 +66,9 @@ const selectContact = async(contact) => {
 
     const response = await fetch("/conversation/" + contact["number"]);
     const data = await response.json();
-    console.log(data)
     const messages = data.messages;
     const $contentMessages = document.getElementById("content-messages");
+    $contentMessages.innerHTML = "";
     for (let message of messages) {
         const $message = document.createElement("li");
         $message.className = 'clearfix';
@@ -90,6 +96,16 @@ const selectContact = async(contact) => {
         $contentMessages.appendChild($message);
     }
     $loadConversation.style.display = "none";
+    const averageFeeling = await get_feelings(contact["number"]);
+    let messageFeeling = "";
+    const averageFeelingRound = Math.ceil(averageFeeling);
+    if(averageFeelingRound == 1) messageFeeling = "Esta super enojado 😡";
+    if(averageFeelingRound == 2) messageFeeling = "Esta enojado 😠";
+    if(averageFeelingRound == 3) messageFeeling = "Esta neutral 🧐";
+    if(averageFeelingRound == 4) messageFeeling = "Esta feliz 😊";
+    if(averageFeelingRound == 5) messageFeeling = "Esta super feliz 🥰";
+    const $feeling = document.getElementById("feeling");
+    $feeling.innerText = messageFeeling + " (" + averageFeelingRound + "/5)";
 }
 
 // invokes 🧙‍♂️🐲
