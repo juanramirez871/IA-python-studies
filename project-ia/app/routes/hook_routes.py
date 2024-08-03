@@ -23,9 +23,7 @@ async def whatsapp_webhook(security_token, request: Request):
 
     if event_name == "message_create":            
             
-        index_whatsapp_name = os.getenv("INDEX_WHATSAPP_NAME")
         index_sentiment_name = os.getenv("INDEX_SENTIMENT_NAME")
-        
         ## insert the message
         data_message = event_message_services.message_create(event_data)
         if data_message is None:
