@@ -59,6 +59,9 @@ const get_feelings = async (number) => {
 const selectContact = async(contact) => {
     const $nameCurrentContact = document.getElementById("name-current-contact");
     const $avatarCurrentContact = document.getElementById("avatar-current-contact");
+    const $contentMessagesAll = document.getElementById("content-all");
+    $contentMessagesAll.style.scrollBehavior = "smooth";
+    $contentMessagesAll.scrollTop = 0;
 
     $nameCurrentContact.innerText = contact["name"];
     $avatarCurrentContact.src = contact["image"];
@@ -102,14 +105,13 @@ const selectContact = async(contact) => {
     $loadConversation.style.display = "none";
     const averageFeeling = await get_feelings(contact["number"]);
     let messageFeeling = "";
-    const averageFeelingRound = Math.ceil(averageFeeling);
-    if(averageFeelingRound == 1) messageFeeling = "Esta super enojado 😡";
-    if(averageFeelingRound == 2) messageFeeling = "Esta enojado 😠";
-    if(averageFeelingRound == 3) messageFeeling = "Esta neutral 🧐";
-    if(averageFeelingRound == 4) messageFeeling = "Esta feliz 😊";
-    if(averageFeelingRound == 5) messageFeeling = "Esta super feliz 🥰";
+    if(averageFeeling <= 0.2) messageFeeling = "Esta super feliz 😄";
+    if(averageFeeling > 0.2 && averageFeeling <= 0.4) messageFeeling = "Esta feliz 😊";
+    if(averageFeeling > 0.4 && averageFeeling <= 0.5) messageFeeling = "Esta normal 😐";
+    if(averageFeeling > 0.5 && averageFeeling <= 0.7) messageFeeling = "Esta enojado 😠"
+    if(averageFeeling > 0.7 && averageFeeling <= 1) messageFeeling = "Esta super enojado 😡";
     const $feeling = document.getElementById("feeling");
-    $feeling.innerText = messageFeeling + " (" + averageFeelingRound + "/5)";
+    $feeling.innerText = messageFeeling;
 }
 
 const questionAboutChat = async(event) => {
@@ -147,10 +149,10 @@ const predictAboutChat = async() => {
         keyboard: false
       });
     myModal.show();
+    document.getElementById("title-predict").innerText = "Predicción 🧙‍♂️";
     const response = await fetch("/preddict/message/" + numberCurrentContact + "/type/predict");
     const data = await response.json();
     const message = data.message;
-    document.getElementById("title-predict").innerText = "Predicción 🧙‍♂️";
     document.getElementById("predict-response").innerText = message;
 
 }
@@ -161,11 +163,11 @@ const adviceAboutChat = async() => {
         keyboard: false
       });
     myModal.show();
+    document.getElementById("title-predict").innerText = "Consejo 🦆";
     const response = await fetch("/preddict/message/" + numberCurrentContact + "/type/advice");
     const data = await response.json();
     const message = data.message;
     document.getElementById("predict-response").innerText = message;
-    document.getElementById("title-predict").innerText = "Consejo 🦆";
 }
 
 // invokes 🧙‍♂️🐲

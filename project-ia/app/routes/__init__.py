@@ -2,7 +2,7 @@ import os
 import importlib
 from fastapi import FastAPI
 
-def init_routes(app: FastAPI):
+def init_routes(app: FastAPI, queue):
     
     routers_dir = os.path.join(os.path.dirname(__file__), "")
     for filename in os.listdir(routers_dir):
@@ -14,3 +14,4 @@ def init_routes(app: FastAPI):
             
             if hasattr(module, "router"):
                 app.include_router(module.router)
+                setattr(module, "queue", queue)
