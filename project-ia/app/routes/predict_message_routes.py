@@ -1,18 +1,15 @@
 from fastapi import APIRouter, Request
 from pinecone import Pinecone
 from app.services import text_processing_services
-from langchain_pinecone import PineconeVectorStore
-from langchain_openai import ChatOpenAI
-from langchain.chains.question_answering import load_qa_chain
-from langchain_huggingface import HuggingFaceEmbeddings
 import openai
 import pandas as pd
+from openai import OpenAI
 import os
 
 router = APIRouter()
 
-@router.get("/preddict/message/{number_phone}/{prediccion}")
-async def predict_message(number_phone, prediccion, request: Request):
+@router.get("/preddict/message/{number_phone}/type/{typeQuery}")
+async def predict_message(number_phone, typeQuery, request: Request):
     
     pc = Pinecone()
     index_name = os.getenv("INDEX_SENTIMENT_NAME")
@@ -48,24 +45,33 @@ async def predict_message(number_phone, prediccion, request: Request):
     
     context = "\n".join(context)
     messages = []
-    if prediccion == True:
+    temperatura = 0
+    if typeQuery == 'predict':
+        print("prediccion")
+        temperatura = 0.2
         messages = [
             {"role": "system", "content": "Eres un modelo de IA que predice el siguiente mensaje en una conversación, sin importar que das tu mayor esfuerzo y das la mejor prediccion."},
             {"role": "user", "content": f"Predice el siguiente mensaje de esta conversación:\n{context}"}
         ]
     else:
+        print("consejo")
+        temperatura = 0.5
         messages = [
             {"role": "system", "content": "Eres un modelo de IA, segun la conversacion dame consejos que responder, siempre das por lo minimo un consejo y hablas natural como un chico de 18 años."},
-            {"role": "user", "content": f"yo soy {my_number}, dame consejos que responder segun:\n{context}"}
+            {"role": "user", "content": f"en la conversacion mis mensajes son el numero {my_number} y de la otra persona es el de {number_phone}, dame consejos que responder segun:\n{context}"}
         ]
-    response = openai.ChatCompletion.create(
+        
+    client = OpenAI(
+        api_key=os.environ.get("OPENAI_API_KEY"),
+    )
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=messages,
         max_tokens=100,
-        temperature=0.7,
+        temperature=temperatura,
     )
     
-    next_message = response['choices'][0]['message']['content']
+    next_message = response.choices[0].message.content
     return {
             "message": next_message,
             "context": context

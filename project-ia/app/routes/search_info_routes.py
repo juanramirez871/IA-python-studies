@@ -22,7 +22,7 @@ async def get_conversation(number_phone, query, request: Request):
         )
     llm = ChatOpenAI(model_name='gpt-3.5-turbo')
     chain = load_qa_chain(llm, chain_type="stuff")
-    docs = vectorstore.similarity_search(query, 10)
+    docs = vectorstore.similarity_search(query, 5)
     respuesta = chain.run(input_documents=docs, question=query)
     
     return {

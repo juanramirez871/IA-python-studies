@@ -1,3 +1,6 @@
+let numberCurrentContact = "";
+
+
 const getConversations = async () => {
   const response = await fetch("/all/numbers");
   const data = await response.json();
@@ -65,6 +68,7 @@ const selectContact = async(contact) => {
     $loadConversation.style.display = "flex";
 
     const response = await fetch("/conversation/" + contact["number"]);
+    numberCurrentContact = contact["number"];
     const data = await response.json();
     const messages = data.messages;
     const $contentMessages = document.getElementById("content-messages");
@@ -108,7 +112,67 @@ const selectContact = async(contact) => {
     $feeling.innerText = messageFeeling + " (" + averageFeelingRound + "/5)";
 }
 
+const questionAboutChat = async(event) => {
+
+    let contentMessages = "";
+    if(event.type === "click") {
+        contentMessages = document.getElementById("question").value;
+    }
+    else if(event.keyCode === 13) {
+        contentMessages = document.getElementById("question").value;
+    }
+
+    if(contentMessages)
+    {
+        document.getElementById("question").disabled = true;
+        const response = await fetch("/search/info/" + numberCurrentContact + "/" + contentMessages);
+        const data = await response.json();
+        const message = data.messages;
+        const $predictResponse = document.getElementById("question-response");
+        const $titleQuestion = document.getElementById("question-user");
+        $predictResponse.innerText = message;
+        $titleQuestion.innerText = contentMessages;
+        var myModal = new bootstrap.Modal(document.getElementById('question-modal'), {
+            keyboard: false
+          });
+        myModal.show();
+        document.getElementById("question").value = "";
+        document.getElementById("question").disabled = false;
+    }
+}
+
+const predictAboutChat = async() => {
+    document.getElementById("predict-response").innerText = "Pensando 🥱";
+    var myModal = new bootstrap.Modal(document.getElementById('predict-modal'), {
+        keyboard: false
+      });
+    myModal.show();
+    const response = await fetch("/preddict/message/" + numberCurrentContact + "/type/predict");
+    const data = await response.json();
+    const message = data.message;
+    document.getElementById("title-predict").innerText = "Predicción 🧙‍♂️";
+    document.getElementById("predict-response").innerText = message;
+
+}
+
+const adviceAboutChat = async() => {
+    document.getElementById("predict-response").innerText = "Pensando 🥱";
+    var myModal = new bootstrap.Modal(document.getElementById('predict-modal'), {
+        keyboard: false
+      });
+    myModal.show();
+    const response = await fetch("/preddict/message/" + numberCurrentContact + "/type/advice");
+    const data = await response.json();
+    const message = data.message;
+    document.getElementById("predict-response").innerText = message;
+    document.getElementById("title-predict").innerText = "Consejo 🦆";
+}
+
 // invokes 🧙‍♂️🐲
 
 document.getElementById("search").addEventListener("keyup", filterContact);
+document.getElementById("question").addEventListener('keyup', questionAboutChat);
+document.getElementById("question-buttom").addEventListener('click', questionAboutChat);
+document.getElementById("predict-buttom").addEventListener('click', predictAboutChat);
+document.getElementById("advice-buttom").addEventListener('click', adviceAboutChat);
 initShowConversations();
