@@ -50,7 +50,7 @@ async def predict_message(number_phone, typeQuery, request: Request):
         print("prediccion")
         temperatura = 0.2
         messages = [
-            {"role": "system", "content": "Eres un modelo de IA que predice el siguiente mensaje en una conversación, sin importar que das tu mayor esfuerzo y das la mejor prediccion."},
+            {"role": "system", "content": "Eres un modelo de IA que predice el siguiente mensaje en una conversación, siempre das una prediccion del proximo mensaje, siempre lo haces sin importar nada."},
             {"role": "user", "content": f"Predice el siguiente mensaje de esta conversación:\n{context}"}
         ]
     else:

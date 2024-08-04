@@ -10,16 +10,21 @@ app = FastAPI()
 port = 3000
 
 queue = asyncio.Queue()
+tasks_ids = []
 
 async def process_queue():
     while True:
-        task = await queue.get()
-        try:
-            print("Processing task 👀")
-            await task()
-        finally:
-            print("Task done ✅")
-            queue.task_done()
+        task_id, task = await queue.get()
+        if callable(task) and task_id not in tasks_ids:
+            try:
+                print(f"Processing task {task_id} 👀")
+                await task()
+            except Exception as e:
+                print(f"Error processing task {task_id}: {e}")
+            finally:
+                queue.task_done()
+        else:
+            print(f"Task {task_id} is not callable")
 
 app.mount(
     "/app/public",

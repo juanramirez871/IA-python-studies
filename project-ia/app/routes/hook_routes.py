@@ -17,16 +17,19 @@ async def whatsapp_webhook(security_token, request: Request):
     instance_id = body.get("instanceId")
     event_name = body.get("event")
     event_data = body.get("data")
+    task_id = ""
     pc = Pinecone()
 
     if security_token is None or instance_id is None or event_name is None or event_data is None:
         print("Invalid request ❗❗❗")
         raise HTTPException(status_code=400, detail="Invalid request")
 
-    if event_name == "message_create":            
+    if event_name == "message_create":
+        data_message = event_message_services.message_create(event_data)
+        task_id = data_message['message_created_at']         
+        
         async def process_message():
             index_sentiment_name = os.getenv("INDEX_SENTIMENT_NAME")
-            data_message = event_message_services.message_create(event_data)
             if data_message is None:
                 print("Invalid request, only text allowed ❗❗❗")
                 raise HTTPException(status_code=400, detail="Invalid request")
@@ -45,7 +48,7 @@ async def whatsapp_webhook(security_token, request: Request):
             }
             pinecone_services.insert_vector(index_message, vector_tokenized, metadata)
             
-        await queue.put(process_message)
+        await queue.put((task_id, process_message))
         
         
     print("Webhook received successfully 🧙‍♂️🐲")
