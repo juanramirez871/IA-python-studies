@@ -34,24 +34,45 @@ def insert_vector(index, vector, metadata):
 def get_all_vectors_by_number(index, number_phone):
     
         my_number = my_number = os.getenv("MY_NUMBER")
-        ids_from = [id_vector for id_vector in index.list(namespace=number_phone)][0]
-        ids_to = [id_vector for id_vector in index.list(namespace=my_number)][0]
-        vectors_from = index.fetch(ids=ids_from, namespace=number_phone)['vectors']
-        vectors_to = index.fetch(ids=ids_to, namespace=my_number)['vectors']
-        vectors = {**vectors_from, **vectors_to}
-        conversations = []
+        conversations = [] 
+        response_1 = index.query(
+            vector=[0] * 768,
+            top_k=100,
+            include_metadata=True,
+            filter={
+                'from': my_number,
+                'to': number_phone
+            },
+            namespace=my_number,
+            sort={"metadata.created_at": "desc"}
+        )
         
-        for id_vector, vector_data in vectors.items():
-            metadata = vector_data['metadata']
+        response_2 = index.query(
+            vector=[0] * 768,
+            top_k=100,
+            include_metadata=True,
+            namespace=number_phone,
+            sort={"metadata.created_at": "desc"}
+        )
+        
+        responses = response_1['matches'] + response_2['matches']
+        unique_results = {match['id']: match for match in responses}.values()
+        
+        for match in unique_results:
+            metadata = match['metadata']
             if (metadata['from'] == my_number and metadata['to'] == number_phone) or (metadata['from'] == number_phone and metadata['to'] == my_number):
                 conversations.append({
                     "from": metadata['from'],
                     "to": metadata['to'],
                     "created_at": metadata['created_at'],
-                    "message": metadata['text']
+                    "message": metadata['text'],
+                    "id": match['id']
                 })
 
         df = pd.DataFrame(conversations)
+        if df.empty:
+            return []
+        
         df['created_at'] = pd.to_datetime(df['created_at'], format='%d/%m/%Y %H:%M:%S')
         df_sorted = df.sort_values(by='created_at')
         messages = df_sorted.to_dict(orient='records')

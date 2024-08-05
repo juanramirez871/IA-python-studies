@@ -104,6 +104,7 @@ const selectContact = async(contact) => {
         $message.innerHTML = html;
         $contentMessages.appendChild($message);
         createdAtMessages.push(message['created_at']);
+        $contentMessagesAll.scrollTop = $contentMessagesAll.scrollHeight;
     }
     $loadConversation.style.display = "none";
     const averageFeeling = await get_feelings(contact["number"]);
@@ -157,6 +158,7 @@ const selectContact = async(contact) => {
                 $message.innerHTML = html;
                 $contentMessages.appendChild($message);
                 createdAtMessages.push(formattedDate);
+                $contentMessagesAll.scrollTop = $contentMessagesAll.scrollHeight;
             }
 
         }

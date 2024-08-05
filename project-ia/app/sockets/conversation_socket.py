@@ -9,19 +9,35 @@ from pinecone import Pinecone
 load_dotenv()
 port_ws = 8765
 
-def get_all_vectors_by_number(index, number_phone):
+async def get_all_vectors_by_number(index, number_phone):
     
         my_number = my_number = os.getenv("MY_NUMBER")
-        ids_from = [id_vector for id_vector in index.list(namespace=number_phone)][0][-5:]
-        ids_to = [id_vector for id_vector in index.list(namespace=my_number)][0][-5:]
+        response_1 = index.query(
+            vector=[0] * 768,
+            top_k=100,
+            include_metadata=True,
+            filter={
+                'from': my_number,
+                'to': number_phone
+            },
+            namespace=my_number,
+            sort={"metadata.created_at": "desc"}
+        )
         
-        vectors_from = index.fetch(ids=ids_from, namespace=number_phone)['vectors']
-        vectors_to = index.fetch(ids=ids_to, namespace=my_number)['vectors']
-        vectors = {**vectors_from, **vectors_to}
+        response_2 = index.query(
+            vector=[0] * 768,
+            top_k=100,
+            include_metadata=True,
+            namespace=number_phone,
+            sort={"metadata.created_at": "desc"}
+        )
+        
+        responses = response_1['matches'] + response_2['matches']
+        unique_results = {match['id']: match for match in responses}.values()
         conversations = []
         
-        for id_vector, vector_data in vectors.items():
-            metadata = vector_data['metadata']
+        for match in unique_results:
+            metadata = match['metadata']
             if (metadata['from'] == my_number and metadata['to'] == number_phone) or (metadata['from'] == number_phone and metadata['to'] == my_number):
                 conversations.append({
                     "from": metadata['from'],
@@ -44,10 +60,10 @@ async def websocket_conversation(websocket, path):
     while True:
         pc = Pinecone()
         index = pc.Index(os.getenv("INDEX_SENTIMENT_NAME"))
-        messages = get_all_vectors_by_number(index, number)
+        messages = await get_all_vectors_by_number(index, number)
         
         await websocket.send(messages)
-        await asyncio.sleep(5)        
+        await asyncio.sleep(0.5)        
 
 
 server_socket = websockets.serve(websocket_conversation, "localhost", port_ws)
