@@ -34,7 +34,7 @@ async def get_conversation(number_phone, query, request: Request):
     
 @router.get("/all/numbers")
 async def get_all_numbers(request: Request):
-    url = "https://waapi.app/api/v1/instances/17034/client/action/get-contacts"
+    url = f"https://waapi.app/api/v1/instances/{os.environ['ID_INSTANCE_WHATSAPP']}/client/action/get-contacts"
     headers = {
         "accept": "application/json",
         "authorization": "Bearer " + os.getenv("API_KEY_WHATSAPP")

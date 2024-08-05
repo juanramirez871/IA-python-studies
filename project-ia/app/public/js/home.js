@@ -1,5 +1,5 @@
 let numberCurrentContact = "";
-
+let socketsConnection = [];
 
 const getConversations = async () => {
   const response = await fetch("/all/numbers");
@@ -76,6 +76,8 @@ const selectContact = async(contact) => {
     const messages = data.messages;
     const $contentMessages = document.getElementById("content-messages");
     $contentMessages.innerHTML = "";
+    let createdAtMessages = []
+
     for (let message of messages) {
         const $message = document.createElement("li");
         $message.className = 'clearfix';
@@ -86,7 +88,7 @@ const selectContact = async(contact) => {
                 <div class="message-data text-right" style="margin-right: 10px;">
                     <small class="message-data-time">${message['created_at']}</small>
                 </div>
-                <div class="message other-message float-right">
+                <div class="message other-message float-right message-server">
                     ${message['message']}
                 </div>
             `
@@ -96,11 +98,12 @@ const selectContact = async(contact) => {
                 <div class="message-data" style="margin-right: 10px;">
                     <small class="message-data-time">${message['created_at']}</small>
                 </div>
-                <div class="message my-message">${message['message']}</div>
+                <div class="message my-message message-server">${message['message']}</div>
             `
         }
         $message.innerHTML = html;
         $contentMessages.appendChild($message);
+        createdAtMessages.push(message['created_at']);
     }
     $loadConversation.style.display = "none";
     const averageFeeling = await get_feelings(contact["number"]);
@@ -112,6 +115,54 @@ const selectContact = async(contact) => {
     if(averageFeeling > 0.7 && averageFeeling <= 1) messageFeeling = "Esta super enojado 😡";
     const $feeling = document.getElementById("feeling");
     $feeling.innerText = messageFeeling;
+
+    // sockets
+    for (let socket of socketsConnection) socket.close();
+    socketsConnection = [];
+    const webSocket = new WebSocket("ws://localhost:8765");
+    webSocket.addEventListener('open', (event) => webSocket.send(contact["number"]));
+    webSocket.addEventListener('message', function (event) {
+
+        let data = JSON.parse(event.data);
+        for (let i = 0; i < data.length; i++)
+        {
+            const createAtMessageSocket = data[i]['created_at'];            
+            const date = new Date(createAtMessageSocket);
+            const formattedDate = date.toISOString().slice(0, 19);
+
+            if(!createdAtMessages.includes(formattedDate))
+            {
+                const $message = document.createElement("li");
+                $message.className = 'clearfix';
+                let html = ""
+                if(data[i].from == contact['number'])
+                {
+                    html = `
+                        <div class="message-data text-right" style="margin-right: 10px;">
+                            <small class="message-data-time">${formattedDate}</small>
+                        </div>
+                        <div class="message other-message float-right message-server">
+                            ${data[i].message}
+                        </div>
+                    `
+                }
+                else {
+                    html = `
+                        <div class="message-data" style="margin-right: 10px;">
+                            <small class="message-data-time">${formattedDate}</small>
+                        </div>
+                        <div class="message my-message message-server">${data[i].message}</div>
+                    `
+                }
+                $message.innerHTML = html;
+                $contentMessages.appendChild($message);
+                createdAtMessages.push(formattedDate);
+            }
+
+        }
+    });
+    
+    socketsConnection.push(webSocket);
 }
 
 const questionAboutChat = async(event) => {

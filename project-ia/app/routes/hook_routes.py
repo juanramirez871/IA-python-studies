@@ -4,7 +4,7 @@ from pinecone import Pinecone
 import os
 import sys
 
-security_tokens = { 17034: os.environ['API_KEY_WHATSAPP'] }
+security_tokens = { os.environ['ID_INSTANCE_WHATSAPP']: os.environ['API_KEY_WHATSAPP'] }
 router = APIRouter()
 
 
@@ -26,14 +26,14 @@ async def whatsapp_webhook(security_token, request: Request):
 
     if event_name == "message_create":
         data_message = event_message_services.message_create(event_data)
+        if data_message is None:
+            print("Invalid request, only text allowed ❗❗❗")
+            raise HTTPException(status_code=400, detail="Invalid request")
+        
         task_id = data_message['message_created_at']         
         
         async def process_message():
             index_sentiment_name = os.getenv("INDEX_SENTIMENT_NAME")
-            if data_message is None:
-                print("Invalid request, only text allowed ❗❗❗")
-                raise HTTPException(status_code=400, detail="Invalid request")
-            
             pinecone_services.create_index(index_sentiment_name, pc)
             vector_tokenized = text_processing_services.text_tokenizer(data_message['message_content'])
             index_message = pc.Index(index_sentiment_name)

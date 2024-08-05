@@ -7,7 +7,7 @@ import asyncio
 
 load_dotenv()
 app = FastAPI()
-port = 3000
+port_app = 3000
 
 queue = asyncio.Queue()
 tasks_ids = []
@@ -17,14 +17,16 @@ async def process_queue():
         task_id, task = await queue.get()
         if callable(task) and task_id not in tasks_ids:
             try:
+                tasks_ids.append(task_id)
                 print(f"Processing task {task_id} 👀")
                 await task()
             except Exception as e:
                 print(f"Error processing task {task_id}: {e}")
             finally:
+                print(f"Task {task_id} finished ✅")
                 queue.task_done()
         else:
-            print(f"Task {task_id} is not callable")
+            print(f"Task {task_id} is not callable or already processed ❌")
 
 app.mount(
     "/app/public",
@@ -32,8 +34,9 @@ app.mount(
     name="public",
 )
 
+
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(process_queue())
 
-init_routes(app, queue)                                                                                                                                                                                                                                                                                  
+init_routes(app, queue)
