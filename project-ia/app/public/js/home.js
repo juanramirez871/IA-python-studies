@@ -110,9 +110,9 @@ const selectContact = async(contact) => {
     const averageFeeling = await get_feelings(contact["number"]);
     let messageFeeling = "";
     if(averageFeeling <= 0.2) messageFeeling = "Esta super feliz 😄";
-    if(averageFeeling > 0.2 && averageFeeling <= 0.4) messageFeeling = "Esta feliz 😊";
-    if(averageFeeling > 0.4 && averageFeeling <= 0.5) messageFeeling = "Esta normal 😐";
-    if(averageFeeling > 0.5 && averageFeeling <= 0.7) messageFeeling = "Esta enojado 😠"
+    if(averageFeeling > 0.2 && averageFeeling <= 0.5) messageFeeling = "Esta feliz 😊";
+    if(averageFeeling > 0.5 && averageFeeling <= 0.6) messageFeeling = "Esta feliz 😊";
+    if(averageFeeling > 0.6 && averageFeeling <= 0.7) messageFeeling = "Esta enojado 😠"
     if(averageFeeling > 0.7 && averageFeeling <= 1) messageFeeling = "Esta super enojado 😡";
     const $feeling = document.getElementById("feeling");
     $feeling.innerText = messageFeeling;
